@@ -11,7 +11,7 @@ const SearchIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" vi
 const ShieldIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>;
 const StarIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>;
 const XIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>;
-const ChevronLeftIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="15 18 9 12 15 6"></polyline></svg>;
+const CheckCircleIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>;
 
 // --- REAL, RELIABLE IMAGES ---
 const productTemplates = [
@@ -58,7 +58,7 @@ const generateMockData = () => {
             platform: platform,
             eta: isQC ? `${Math.floor(Math.random() * 15) + 8} MINS` : `${Math.floor(Math.random() * 3) + 1} DAYS`,
             type: isQC ? 'qc' : 'ecom',
-            imageUrl: t.img, // Reliable, high-res static images
+            imageUrl: t.img, 
             fee: isQC ? Math.floor(Math.random() * 40) + 10 : 0,
             rating: (Math.random() * 1.5 + 3.5).toFixed(1),
             reviews: Math.floor(Math.random() * 5000) + 10,
@@ -70,12 +70,13 @@ const generateMockData = () => {
 const ALL_PRODUCTS = generateMockData();
 
 function App() {
-    const [view, setView] = useState('login'); // login, geo, home, product
+    const [view, setView] = useState('login'); // login, geo, home, product, confirmation
     const [location, setLocation] = useState(null);
     const [search, setSearch] = useState("");
     const [cart, setCart] = useState([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null); 
+    const [lastOrder, setLastOrder] = useState(null);
     
     // Add-ons
     const [rainPackaging, setRainPackaging] = useState(false);
@@ -84,7 +85,7 @@ function App() {
         let res = ALL_PRODUCTS;
         if (search) res = res.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.category.toLowerCase().includes(search.toLowerCase()));
         if (location && location.tier !== 1) res = res.filter(p => p.type !== 'qc'); 
-        return res.slice(0, 300); // Render 300 max for performance
+        return res.slice(0, 300); 
     }, [search, location]);
 
     const addToCart = (item) => {
@@ -116,8 +117,26 @@ function App() {
 
     const checkout = () => {
         if(cart.length === 0) return alert("Cart is empty");
-        alert(`Razorpay Escrow Locked for ₹${total.toLocaleString('en-IN')}!\n\nBurnie says: "Dispatching orders to ${platformsInCart.join(', ')}!"`);
-        setCart([]); setIsCartOpen(false); setView('home');
+        
+        // E2E Order Confirmation Logic
+        const orderId = `BCO-IN-${Math.floor(10000000 + Math.random() * 90000000)}`;
+        const orderDetails = {
+            id: orderId,
+            items: [...cart],
+            total: total,
+            subtotal: subtotal,
+            fees: totalFees,
+            addOns: addOns,
+            platforms: platformsInCart,
+            date: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+            address: location?.name || "Default Address"
+        };
+        
+        setLastOrder(orderDetails);
+        setCart([]);
+        setRainPackaging(false);
+        setIsCartOpen(false);
+        setView('confirmation');
     };
 
     // --- VIEWS ---
@@ -173,7 +192,7 @@ function App() {
                 {/* Search Bar */}
                 <div className="flex-1 w-full md:max-w-4xl mx-4">
                     <div className="flex w-full rounded-md overflow-hidden">
-                        <select className="bg-gray-200 text-gray-700 px-3 py-3 border-r border-gray-300 text-sm font-medium outline-none hidden md:block">
+                        <select className="bg-gray-200 text-gray-700 px-3 py-3 border-r border-gray-300 text-sm font-medium outline-none hidden md:block cursor-pointer">
                             <option>All</option>
                             <option>Electronics</option>
                             <option>Groceries</option>
@@ -194,7 +213,7 @@ function App() {
                 {/* Account & Cart */}
                 <div className="flex items-center gap-6">
                     <div className="hidden lg:block text-sm cursor-pointer hover:border border-transparent hover:border-white p-1 rounded">
-                        <div className="text-xs font-normal text-gray-300">Hello, User</div>
+                        <div className="text-xs font-normal text-gray-300">Hello, Urban Shopper</div>
                         <div className="font-bold">Accounts & Lists</div>
                     </div>
                     <button onClick={() => setIsCartOpen(true)} className="flex items-end gap-1 hover:border border-transparent hover:border-white p-1 rounded relative">
@@ -230,13 +249,131 @@ function App() {
         </div>
     );
 
-    // DEDICATED PRODUCT PAGE VIEW (AMAZON STYLE)
+    // POST-ORDER CONFIRMATION VIEW (END-TO-END E2E TEST)
+    if (view === 'confirmation' && lastOrder) {
+        return (
+            <div className="min-h-screen pb-20 bg-[#eaeded] font-sans">
+                <TopNav />
+                <main className="container mx-auto px-4 py-8 max-w-5xl animate-fade-in">
+                    
+                    {/* Success Banner */}
+                    <div className="bg-white p-6 md:p-8 rounded-lg shadow-sm border border-green-200 border-t-4 border-t-green-600 mb-6">
+                        <div className="flex items-center gap-4 mb-6">
+                            <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center text-green-600 shrink-0">
+                                <CheckCircleIcon className="w-8 h-8" />
+                            </div>
+                            <div>
+                                <h1 className="text-2xl font-bold text-gray-900">Order placed, thank you!</h1>
+                                <p className="text-sm text-gray-600 mt-1">Confirmation and distributed tracking links have been sent to your registered mobile number.</p>
+                            </div>
+                        </div>
+                        
+                        <div className="flex flex-wrap justify-between items-center bg-gray-50 p-4 rounded border">
+                            <div className="mb-2 md:mb-0">
+                                <div className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Omni-Order Number</div>
+                                <div className="text-sm font-bold text-[#007185] hover:underline cursor-pointer">{lastOrder.id}</div>
+                            </div>
+                            <div className="mb-2 md:mb-0">
+                                <div className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Total Amount</div>
+                                <div className="text-sm font-bold text-gray-900">₹{lastOrder.total.toLocaleString('en-IN')} <span className="text-xs font-normal text-gray-500 ml-1">(Escrow Secured)</span></div>
+                            </div>
+                            <div>
+                                <div className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Order Date</div>
+                                <div className="text-sm font-medium text-gray-900">{lastOrder.date}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        
+                        {/* Distributed Logistics Breakdown */}
+                        <div className="md:col-span-2 space-y-6">
+                            <h2 className="text-xl font-bold text-gray-900 mb-2">Distributed Logistics</h2>
+                            
+                            {lastOrder.platforms.map(platform => {
+                                const platformItems = lastOrder.items.filter(i => i.platform === platform);
+                                const isQC = ['Zepto', 'Blinkit', 'Swiggy Instamart'].includes(platform);
+                                const maxEta = platformItems[0]?.eta; // Just picking first for demo representation
+                                
+                                return (
+                                    <div key={platform} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                                        <div className="bg-gray-50 px-6 py-4 border-b flex justify-between items-center">
+                                            <div>
+                                                <h3 className="font-bold text-gray-900 text-base">Fulfillment by {platform}</h3>
+                                                <p className="text-xs text-gray-500 mt-1">Status: <span className="text-green-600 font-bold">Dispatched to Partner API</span></p>
+                                            </div>
+                                            <span className={`text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1 ${isQC ? 'bg-orange-100 text-[#fc8019]' : 'bg-blue-100 text-blue-700'}`}>
+                                                {isQC ? <LightningIcon className="w-3.5 h-3.5"/> : <TruckIcon className="w-3.5 h-3.5"/>}
+                                                ETA: {maxEta}
+                                            </span>
+                                        </div>
+                                        <div className="p-6 space-y-5">
+                                            {platformItems.map((item, idx) => (
+                                                <div key={idx} className="flex gap-4 items-start">
+                                                    <div className="w-20 h-20 bg-gray-50 border rounded-lg p-2 shrink-0 overflow-hidden">
+                                                        <img src={item.imageUrl} className="w-full h-full object-contain mix-blend-multiply" alt={item.name} />
+                                                    </div>
+                                                    <div>
+                                                        <div className="font-medium text-sm text-[#007185] line-clamp-2 hover:underline cursor-pointer">{item.name}</div>
+                                                        <div className="text-[10px] text-gray-500 mt-1 uppercase tracking-wide">Qty: 1</div>
+                                                        <div className="text-gray-900 font-bold text-sm mt-1">₹{item.price.toLocaleString('en-IN')}</div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        
+                        {/* Address & Payment Summary */}
+                        <div className="space-y-6">
+                            <h2 className="text-xl font-bold text-[#eaeded] mb-2 select-none">.</h2> {/* Spacer to align grids */}
+                            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                                <h3 className="font-bold text-gray-900 mb-3 border-b pb-2">Delivery Address</h3>
+                                <p className="text-sm text-gray-800 font-bold">Default User Address</p>
+                                <p className="text-sm text-gray-600 mt-1">{lastOrder.address}</p>
+                                <p className="text-sm text-gray-600">India, 560102</p>
+                                <p className="text-sm text-gray-600 mt-2">Phone: +91 9999999999</p>
+                            </div>
+                            
+                            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                                <h3 className="font-bold text-gray-900 mb-3 border-b pb-2">Payment Summary</h3>
+                                <div className="flex justify-between text-sm text-gray-600 mb-2">
+                                    <span>Item Subtotal:</span>
+                                    <span>₹{lastOrder.subtotal.toLocaleString('en-IN')}</span>
+                                </div>
+                                <div className="flex justify-between text-sm text-gray-600 mb-2">
+                                    <span>Platform/Surge Fees:</span>
+                                    <span>₹{lastOrder.fees.toLocaleString('en-IN')}</span>
+                                </div>
+                                <div className="flex justify-between text-sm text-gray-600 mb-4">
+                                    <span>Delivery Add-ons:</span>
+                                    <span>₹{lastOrder.addOns.toLocaleString('en-IN')}</span>
+                                </div>
+                                <div className="flex justify-between font-bold text-xl text-[#B12704] border-t pt-3">
+                                    <span>Order Total:</span>
+                                    <span>₹{lastOrder.total.toLocaleString('en-IN')}</span>
+                                </div>
+                            </div>
+                            
+                            <button onClick={() => setView('home')} className="w-full bg-gray-200 hover:bg-gray-300 text-gray-900 font-bold py-3 rounded-lg shadow-sm border border-gray-300 text-sm transition">
+                                Continue Shopping
+                            </button>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        );
+    }
+
+    // DEDICATED PRODUCT PAGE VIEW
     if (view === 'product' && selectedProduct) {
         return (
-            <div className="min-h-screen pb-20 font-sans bg-white">
+            <div className="min-h-screen pb-20 font-sans bg-white animate-fade-in">
                 <TopNav />
                 
-                <div className="container mx-auto px-4 py-6">
+                <div className="container mx-auto px-4 py-6 max-w-7xl">
                     {/* Breadcrumb */}
                     <div className="text-sm text-gray-500 mb-6 font-medium">
                         <span className="cursor-pointer hover:underline" onClick={()=>setView('home')}>Home</span> &rsaquo; 
@@ -248,8 +385,9 @@ function App() {
                         {/* Image Gallery */}
                         <div className="w-full lg:w-2/5 flex flex-col gap-4">
                             <div className="border border-gray-200 rounded-lg p-4 flex items-center justify-center h-[500px] relative">
-                                <div className={`absolute top-4 left-4 px-3 py-1.5 rounded-lg text-xs font-black shadow-sm ${selectedProduct.type === 'qc' ? 'bg-orange-100 text-[#fc8019]' : 'bg-blue-100 text-blue-700'}`}>
-                                    {selectedProduct.type === 'qc' ? '⚡ ' : '🚚 '} {selectedProduct.eta}
+                                <div className={`absolute top-4 left-4 px-3 py-1.5 rounded-lg text-xs font-black shadow-sm flex items-center gap-1 ${selectedProduct.type === 'qc' ? 'bg-orange-100 text-[#fc8019]' : 'bg-blue-100 text-blue-700'}`}>
+                                    {selectedProduct.type === 'qc' ? <LightningIcon className="w-4 h-4"/> : <TruckIcon className="w-4 h-4"/>} 
+                                    {selectedProduct.eta}
                                 </div>
                                 <img src={selectedProduct.imageUrl} alt={selectedProduct.name} className="max-w-full max-h-full object-contain" />
                             </div>
@@ -258,16 +396,16 @@ function App() {
                         {/* Product Info Middle */}
                         <div className="w-full lg:w-2/5">
                             <h1 className="text-3xl font-normal text-gray-900 leading-tight mb-2">{selectedProduct.name}</h1>
-                            <a href="#" className="text-sm text-blue-600 hover:underline mb-2 block">Visit the {selectedProduct.brand} Store</a>
+                            <a href="#" className="text-sm text-[#007185] hover:underline mb-2 block font-medium">Visit the {selectedProduct.brand} Store</a>
                             
                             <div className="flex items-center gap-2 mb-4 border-b pb-4">
                                 <div className="flex text-yellow-500"><StarIcon className="w-4 h-4"/><StarIcon className="w-4 h-4"/><StarIcon className="w-4 h-4"/><StarIcon className="w-4 h-4"/></div>
-                                <span className="text-blue-600 text-sm hover:underline cursor-pointer">{selectedProduct.reviews.toLocaleString()} ratings</span>
+                                <span className="text-[#007185] text-sm hover:underline cursor-pointer">{selectedProduct.reviews.toLocaleString()} ratings</span>
                             </div>
 
                             <div className="mb-4">
                                 <div className="flex items-baseline gap-2">
-                                    <span className="text-red-600 text-2xl font-light">-{Math.round((1 - selectedProduct.price/selectedProduct.originalPrice)*100)}%</span>
+                                    <span className="text-[#cc0c39] text-2xl font-light">-{Math.round((1 - selectedProduct.price/selectedProduct.originalPrice)*100)}%</span>
                                     <span className="text-3xl font-medium text-gray-900"><span className="text-lg align-top">₹</span>{selectedProduct.price.toLocaleString('en-IN')}</span>
                                 </div>
                                 <div className="text-sm text-gray-500 mt-1">M.R.P.: <span className="line-through">₹{selectedProduct.originalPrice.toLocaleString('en-IN')}</span></div>
@@ -275,8 +413,8 @@ function App() {
                             </div>
 
                             <div className="border-t pt-4 mt-4 text-sm text-gray-800 leading-relaxed">
-                                <h3 className="font-bold mb-2">About this item</h3>
-                                <ul className="list-disc pl-5 space-y-1">
+                                <h3 className="font-bold mb-2 text-base">About this item</h3>
+                                <ul className="list-disc pl-5 space-y-1.5">
                                     <li>{selectedProduct.desc}</li>
                                     <li>100% Authentic product sourced directly from verified sellers.</li>
                                     <li>Distributed fulfillment optimized by Burnt Coffee AI.</li>
@@ -286,10 +424,10 @@ function App() {
 
                         {/* Buy Box Right */}
                         <div className="w-full lg:w-1/5">
-                            <div className="border border-gray-300 rounded-lg p-4 shadow-sm bg-white sticky top-24">
+                            <div className="border border-gray-300 rounded-lg p-5 shadow-sm bg-white sticky top-24">
                                 <div className="text-2xl font-medium text-gray-900 mb-4">₹{selectedProduct.price.toLocaleString('en-IN')}</div>
                                 
-                                <div className="text-sm text-blue-600 hover:underline mb-2 cursor-pointer flex items-center gap-1">
+                                <div className="text-sm text-[#007185] hover:underline mb-2 cursor-pointer flex items-center gap-1 font-medium">
                                     <MapPinIcon className="w-4 h-4 text-gray-800"/> Deliver to {location?.name}
                                 </div>
                                 
@@ -297,8 +435,8 @@ function App() {
                                 
                                 <div className="bg-gray-50 border border-gray-200 rounded p-3 mb-6">
                                     <div className="flex justify-between text-xs text-gray-500 mb-1"><span>Ships from</span> <span className="text-gray-900 font-medium">{selectedProduct.platform}</span></div>
-                                    <div className="flex justify-between text-xs text-gray-500 mb-1"><span>Sold by</span> <span className="text-gray-900 font-medium">{selectedProduct.platform} Retail</span></div>
-                                    <div className="flex justify-between text-xs text-gray-500">
+                                    <div className="flex justify-between text-xs text-gray-500 mb-1"><span>Sold by</span> <span className="text-[#007185] hover:underline cursor-pointer font-medium">{selectedProduct.platform} Retail</span></div>
+                                    <div className="flex justify-between text-xs text-gray-500 mt-2 border-t pt-2 border-dashed">
                                         <span>Delivery Fees</span> 
                                         <span className={selectedProduct.fee > 0 ? 'text-red-600 font-bold' : 'text-green-600 font-bold'}>
                                             {selectedProduct.fee > 0 ? `+ ₹${selectedProduct.fee} Surge` : 'FREE'}
@@ -306,13 +444,13 @@ function App() {
                                     </div>
                                 </div>
 
-                                <button onClick={() => addToCart(selectedProduct)} className="w-full bg-[#ffd814] hover:bg-[#f7ca00] text-gray-900 font-normal py-2.5 rounded-full mb-3 shadow-sm border border-[#fcd200]">
+                                <button onClick={() => addToCart(selectedProduct)} className="w-full bg-[#ffd814] hover:bg-[#f7ca00] text-gray-900 font-normal py-2.5 rounded-full mb-3 shadow-sm border border-[#fcd200] transition">
                                     Add to Omni-Cart
                                 </button>
-                                <button onClick={() => {addToCart(selectedProduct); setIsCartOpen(true);}} className="w-full bg-[#ffa41c] hover:bg-[#fa8900] text-gray-900 font-normal py-2.5 rounded-full shadow-sm border border-[#ff8f00]">
+                                <button onClick={() => {addToCart(selectedProduct); setIsCartOpen(true);}} className="w-full bg-[#ffa41c] hover:bg-[#fa8900] text-gray-900 font-normal py-2.5 rounded-full shadow-sm border border-[#ff8f00] transition">
                                     Buy Now
                                 </button>
-                                <div className="text-xs text-gray-500 text-center mt-3 flex items-center justify-center gap-1"><ShieldIcon className="w-4 h-4"/> Secure Razorpay Escrow</div>
+                                <div className="text-xs text-gray-500 text-center mt-4 flex items-center justify-center gap-1"><ShieldIcon className="w-4 h-4"/> Secure Razorpay Escrow</div>
                             </div>
                         </div>
                     </div>
@@ -323,7 +461,7 @@ function App() {
         );
     }
 
-    // MAIN HOME VIEW
+    // MAIN HOME VIEW CART OVERLAY
     const CartOverlay = () => (
         <div className="fixed inset-0 bg-black/70 z-50 flex justify-end backdrop-blur-sm transition-opacity animate-fade-in text-gray-900 font-sans">
             <div className="w-full max-w-md bg-gray-50 h-full flex flex-col shadow-2xl animate-slide-in">
@@ -353,7 +491,7 @@ function App() {
                         <div className="h-full flex flex-col items-center justify-center text-gray-400 mt-20">
                             <CartIcon className="w-16 h-16 mb-4 opacity-50" />
                             <p className="font-medium text-lg">Your cart is empty.</p>
-                            <button onClick={() => setIsCartOpen(false)} className="mt-4 text-blue-600 text-sm hover:underline">Continue Shopping</button>
+                            <button onClick={() => setIsCartOpen(false)} className="mt-4 text-[#007185] text-sm hover:underline">Continue Shopping</button>
                         </div>
                     ) : (
                         <div className="space-y-3">
@@ -366,7 +504,7 @@ function App() {
                                     <div className="flex-1 pr-4">
                                         <h4 className="font-medium text-sm text-gray-900 leading-tight mb-1 line-clamp-2">{item.name}</h4>
                                         <div className="text-[10px] font-medium text-gray-500 mb-1">Fulfillment: <span className="text-[#007185]">{item.platform}</span></div>
-                                        <div className="font-bold text-red-700 text-sm mb-1">₹{item.price.toLocaleString('en-IN')}</div>
+                                        <div className="font-bold text-[#B12704] text-sm mb-1">₹{item.price.toLocaleString('en-IN')}</div>
                                         <div className={`inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded ${item.type === 'qc' ? 'bg-orange-100 text-[#fc8019]' : 'bg-blue-100 text-blue-700'}`}>
                                             {item.type === 'qc' ? <LightningIcon className="w-3 h-3"/> : <TruckIcon className="w-3 h-3"/>}
                                             {item.eta}
@@ -377,11 +515,16 @@ function App() {
                             
                             {/* Delivery Add-ons */}
                             <div className="mt-4 bg-white p-4 rounded shadow-sm border border-gray-200">
-                                <h3 className="font-bold text-sm mb-3 text-gray-800">Add-ons</h3>
+                                <h3 className="font-bold text-sm mb-3 text-gray-800">Delivery Add-ons</h3>
                                 <label className="flex items-center gap-3 mb-2 cursor-pointer">
-                                    <input type="checkbox" checked={rainPackaging} onChange={()=>setRainPackaging(!rainPackaging)} className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500" />
+                                    <input type="checkbox" checked={rainPackaging} onChange={()=>setRainPackaging(!rainPackaging)} className="w-4 h-4 rounded text-[#007185] focus:ring-[#007185]" />
                                     <div className="flex-1 text-sm text-gray-700">Rain-proof Packaging</div>
                                     <div className="text-sm font-medium text-gray-600">₹15</div>
+                                </label>
+                                <label className="flex items-center gap-3 mb-2 cursor-pointer">
+                                    <input type="checkbox" checked={greenDelivery} onChange={()=>setGreenDelivery(!greenDelivery)} className="w-4 h-4 rounded text-[#007185] focus:ring-[#007185]" />
+                                    <div className="flex-1 text-sm text-gray-700">Green Delivery 🌱</div>
+                                    <div className="text-sm font-medium text-green-600">FREE</div>
                                 </label>
                             </div>
                         </div>
@@ -397,7 +540,7 @@ function App() {
                         </div>
                         <div className="flex justify-between text-sm text-gray-600 mb-1">
                             <span>Platform/Surge Fees:</span>
-                            <span className="text-red-600">+₹{totalFees.toLocaleString('en-IN')}</span>
+                            <span className="text-red-600 font-medium">+₹{totalFees.toLocaleString('en-IN')}</span>
                         </div>
                         <div className="flex justify-between text-sm text-gray-600 mb-3">
                             <span>Add-ons:</span>
@@ -408,7 +551,7 @@ function App() {
                             <span>Order Total:</span>
                             <span>₹{total.toLocaleString('en-IN')}</span>
                         </div>
-                        <button onClick={checkout} className="w-full bg-[#ffd814] hover:bg-[#f7ca00] text-gray-900 font-normal py-3 rounded-xl shadow-sm border border-[#fcd200] text-sm flex items-center justify-center gap-2">
+                        <button onClick={checkout} className="w-full bg-[#ffd814] hover:bg-[#f7ca00] text-gray-900 font-normal py-3 rounded-xl shadow-sm border border-[#fcd200] text-sm flex items-center justify-center gap-2 transition">
                             <ShieldIcon className="w-4 h-4" /> Proceed to Checkout (Escrow)
                         </button>
                     </div>
@@ -418,7 +561,7 @@ function App() {
     );
 
     return (
-        <div className="min-h-screen pb-20 bg-[#eaeded] font-sans">
+        <div className="min-h-screen pb-20 bg-[#eaeded] font-sans animate-fade-in">
             <TopNav />
             {/* If no search, show banner */}
             {!search && <HeroBanner />}
@@ -447,15 +590,15 @@ function App() {
 function ProductCard({ item, onSelect }) {
     return (
         <div onClick={onSelect} className="bg-white rounded shadow-sm hover:shadow-lg transition-shadow duration-200 border border-gray-200 flex flex-col relative group cursor-pointer p-3">
-            <div className="h-48 w-full bg-gray-50 overflow-hidden relative mb-2 flex items-center justify-center p-2">
-                <img src={item.imageUrl} alt={item.name} loading="lazy" className="max-w-full max-h-full object-contain mix-blend-multiply" />
+            <div className="h-48 w-full bg-white overflow-hidden relative mb-2 flex items-center justify-center p-2">
+                <img src={item.imageUrl} alt={item.name} loading="lazy" className="max-w-full max-h-full object-contain" />
             </div>
             
             <div className="flex flex-col flex-1">
                 <h3 className="font-medium text-[#007185] hover:text-[#c45500] text-sm leading-snug mb-1 line-clamp-2">{item.name}</h3>
                 <div className="flex items-center gap-1 mb-1">
                     <div className="flex text-yellow-500"><StarIcon className="w-3 h-3"/><StarIcon className="w-3 h-3"/><StarIcon className="w-3 h-3"/><StarIcon className="w-3 h-3"/></div>
-                    <span className="text-xs text-[#007185]">{item.reviews.toLocaleString('en-IN')}</span>
+                    <span className="text-xs text-[#007185] hover:underline">{item.reviews.toLocaleString('en-IN')}</span>
                 </div>
 
                 <div className="mt-auto">

@@ -1,1 +1,1 @@
-# Burnt Coffee 1000 SKU Production Prototype\nFully updated with real imagery mapping (Unsplash direct URLs) and SVG icons.
+# Burnt Coffee E2E Prototype\nIncludes real images, Product Page, and Post-Order Confirmation View.
