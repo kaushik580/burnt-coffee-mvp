@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Burnt Coffee - MVP Prototype</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">☕ Burnt Coffee</div>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search for coffee, milk, charger...">
+            <button onclick="handleSearch()">Search</button>
+        </div>
+    </header>
+
+    <main>
+        <div class="layout">
+            <section class="results-section">
+                <h2>Comparison Dashboard</h2>
+                <div class="filters">
+                    <button onclick="sortResults('price')">Cheapest</button>
+                    <button onclick="sortResults('eta')">Fastest ETA</button>
+                </div>
+                <div id="resultsGrid" class="grid">
+                    <p class="placeholder-text">Search for an item to compare across platforms.</p>
+                </div>
+            </section>
+
+            <aside class="cart-section">
+                <h2>Unified Cart 🛒</h2>
+                <div id="cartItems" class="cart-items">
+                    <p class="placeholder-text">Your cart is empty.</p>
+                </div>
+                <div class="cart-summary">
+                    <div class="summary-row"><span>Subtotal:</span> <span id="cartSubtotal">$0.00</span></div>
+                    <div class="summary-row"><span>Delivery Fees:</span> <span id="cartDelivery">$0.00</span></div>
+                    <div class="summary-row total"><span>Total:</span> <span id="cartTotal">$0.00</span></div>
+                    <button class="checkout-btn" onclick="checkout()">Checkout All</button>
+                </div>
+            </aside>
+        </div>
+    </main>
+    <script src="app.js"></script>
+</body>
+</html>
