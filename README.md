@@ -1,1 +1,1 @@
-# Burnt Coffee Prototype\nIncludes real Unsplash image mapping and SVG icons.
+# Burnt Coffee 1000 SKU Production Prototype\nFully updated with real imagery mapping (Unsplash direct URLs) and SVG icons.
