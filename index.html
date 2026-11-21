@@ -3,45 +3,270 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Burnt Coffee - MVP Prototype</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Burnt Coffee - The Omni-Platform</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Swiggy/Amazon Hybrid Styling */
+        .brand-orange { color: #fc8019; }
+        .bg-brand-orange { background-color: #fc8019; }
+        .brand-dark { background-color: #232f3e; } /* Amazon Dark */
+    </style>
 </head>
 <body>
-    <header>
-        <div class="logo">☕ Burnt Coffee</div>
-        <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Search for coffee, milk, charger...">
-            <button onclick="handleSearch()">Search</button>
-        </div>
-    </header>
+    <div id="root"></div>
 
-    <main>
-        <div class="layout">
-            <section class="results-section">
-                <h2>Comparison Dashboard</h2>
-                <div class="filters">
-                    <button onclick="sortResults('price')">Cheapest</button>
-                    <button onclick="sortResults('eta')">Fastest ETA</button>
-                </div>
-                <div id="resultsGrid" class="grid">
-                    <p class="placeholder-text">Search for an item to compare across platforms.</p>
-                </div>
-            </section>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
 
-            <aside class="cart-section">
-                <h2>Unified Cart 🛒</h2>
-                <div id="cartItems" class="cart-items">
-                    <p class="placeholder-text">Your cart is empty.</p>
+        const MOCK_DATA = [
+            { id: 1, name: "Apple iPhone 15 Pro (128GB)", category: "Electronics", price: 134900, originalPrice: 140000, platform: "Flipkart", eta: "2 Days", type: "ecom", image: "📱", fee: 0 },
+            { id: 2, name: "Sony WH-1000XM5 Headphones", category: "Electronics", price: 24990, originalPrice: 29990, platform: "Amazon", eta: "Tomorrow", type: "ecom", image: "🎧", fee: 0 },
+            { id: 3, name: "Nandini Full Cream Milk 500ml", category: "Groceries", price: 24, originalPrice: 24, platform: "Zepto", eta: "10 MINS", type: "qc", image: "🥛", fee: 15 },
+            { id: 4, name: "Nandini Full Cream Milk 500ml", category: "Groceries", price: 25, originalPrice: 25, platform: "Blinkit", eta: "12 MINS", type: "qc", image: "🥛", fee: 5 },
+            { id: 5, name: "Farmley Premium Cashews 500g", category: "Groceries", price: 450, originalPrice: 600, platform: "Swiggy Instamart", eta: "14 MINS", type: "qc", image: "🥜", fee: 25 },
+            { id: 6, name: "Nike Air Force 1 '07", category: "Fashion", price: 7495, originalPrice: 7495, platform: "Myntra", eta: "3 Days", type: "ecom", image: "👟", fee: 0 }
+        ];
+
+        function App() {
+            const [search, setSearch] = useState("");
+            const [cart, setCart] = useState([]);
+            const [isCartOpen, setIsCartOpen] = useState(false);
+
+            const filteredData = MOCK_DATA.filter(item => item.name.toLowerCase().includes(search.toLowerCase()) || search === "");
+
+            const addToCart = (item) => {
+                setCart([...cart, item]);
+                setIsCartOpen(true);
+            };
+
+            const removeFromCart = (index) => {
+                const newCart = [...cart];
+                newCart.splice(index, 1);
+                setCart(newCart);
+            };
+
+            const subtotal = cart.reduce((sum, item) => sum + item.price, 0);
+            
+            // Calculate unique platform fees (max fee per platform)
+            const platforms = [...new Set(cart.map(i => i.platform))];
+            let totalFees = 0;
+            platforms.forEach(p => {
+                const pItems = cart.filter(i => i.platform === p);
+                const maxFee = Math.max(...pItems.map(i => i.fee));
+                totalFees += maxFee;
+            });
+
+            const total = subtotal + totalFees;
+
+            // Optimizer Logic: If Zepto is in cart and Blinkit has same item cheaper
+            const hasZeptoMilk = cart.some(i => i.id === 3);
+            const optimizeCart = () => {
+                const newCart = cart.filter(i => i.id !== 3); // Remove Zepto Milk
+                newCart.push(MOCK_DATA.find(i => i.id === 4)); // Add Blinkit Milk
+                setCart(newCart);
+            };
+
+            return (
+                <div className="min-h-screen pb-20">
+                    {/* Header (Amazon Style Dark) */}
+                    <header className="brand-dark text-white sticky top-0 z-40 shadow-lg">
+                        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <span className="text-2xl">☕</span>
+                                <h1 className="text-xl font-bold tracking-tight">Burnt Coffee <span className="bg-brand-orange text-xs px-2 py-1 rounded ml-2 font-black">OMNI</span></h1>
+                            </div>
+                            
+                            <div className="flex-1 max-w-2xl mx-8">
+                                <div className="relative flex w-full">
+                                    <input 
+                                        type="text" 
+                                        placeholder="Search across Amazon, Zepto, Myntra..." 
+                                        className="w-full py-2 px-4 rounded-l text-black focus:outline-none"
+                                        value={search}
+                                        onChange={(e) => setSearch(e.target.value)}
+                                    />
+                                    <button className="bg-brand-orange hover:bg-orange-600 px-6 rounded-r font-bold transition">
+                                        Search
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button onClick={() => setIsCartOpen(true)} className="flex items-center gap-2 hover:text-brand-orange transition relative">
+                                <i data-lucide="shopping-cart" className="w-6 h-6"></i>
+                                <span className="font-bold hidden md:inline">Omni-Cart</span>
+                                {cart.length > 0 && (
+                                    <span className="absolute -top-2 -right-2 bg-brand-orange text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                                        {cart.length}
+                                    </span>
+                                )}
+                            </button>
+                        </div>
+                    </header>
+
+                    {/* Main Content */}
+                    <main className="container mx-auto px-4 mt-8">
+                        
+                        {/* Categories Row */}
+                        <div className="flex gap-4 overflow-x-auto hide-scroll mb-8 pb-2">
+                            {['Electronics', 'Groceries', 'Fashion', 'Home', 'Beauty'].map(cat => (
+                                <button key={cat} className="whitespace-nowrap px-6 py-2 bg-white rounded-full shadow-sm font-semibold text-gray-700 hover:bg-gray-50 border border-gray-200">
+                                    {cat}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Product Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                            {filteredData.map(item => (
+                                <div key={item.id} className="bg-white rounded-xl shadow hover:shadow-xl transition overflow-hidden border border-gray-100 flex flex-col relative">
+                                    
+                                    {/* Swiggy Style ETA Badge */}
+                                    <div className={`absolute top-3 left-3 px-2 py-1 rounded text-xs font-black shadow-sm z-10 ${item.type === 'qc' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
+                                        ⚡ {item.eta}
+                                    </div>
+                                    
+                                    {/* Platform Logo Badge */}
+                                    <div className="absolute top-3 right-3 text-xs font-bold text-gray-500 bg-white/80 px-2 py-1 rounded backdrop-blur">
+                                        via {item.platform}
+                                    </div>
+
+                                    <div className="h-48 bg-gray-50 flex items-center justify-center text-6xl">
+                                        {item.image}
+                                    </div>
+                                    
+                                    <div className="p-4 flex flex-col flex-1">
+                                        <div className="text-sm text-gray-500 mb-1">{item.category}</div>
+                                        <h3 className="font-bold text-gray-800 text-lg leading-tight mb-2 line-clamp-2">{item.name}</h3>
+                                        
+                                        <div className="mt-auto">
+                                            <div className="flex items-end gap-2 mb-1">
+                                                <span className="text-xl font-black">₹{item.price.toLocaleString('en-IN')}</span>
+                                                {item.originalPrice > item.price && (
+                                                    <span className="text-sm text-gray-400 line-through">₹{item.originalPrice.toLocaleString('en-IN')}</span>
+                                                )}
+                                            </div>
+                                            {item.fee > 0 && <div className="text-xs text-red-500 font-semibold mb-3">+ ₹{item.fee} Platform/Surge Fee</div>}
+                                            {item.fee === 0 && <div className="text-xs text-green-600 font-semibold mb-3">FREE Delivery</div>}
+                                            
+                                            <button onClick={() => addToCart(item)} className="w-full py-2.5 rounded font-bold text-white transition shadow-sm bg-brand-orange hover:bg-orange-600">
+                                                ADD TO OMNI-CART
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </main>
+
+                    {/* Omni-Cart Sidebar Overlay */}
+                    {isCartOpen && (
+                        <div className="fixed inset-0 bg-black/60 z-50 flex justify-end backdrop-blur-sm transition-opacity">
+                            <div className="w-full max-w-md bg-gray-50 h-full flex flex-col shadow-2xl animate-slide-in">
+                                
+                                {/* Cart Header */}
+                                <div className="p-4 bg-white border-b flex justify-between items-center">
+                                    <h2 className="text-xl font-black flex items-center gap-2">
+                                        The Everything Cart 🛒
+                                    </h2>
+                                    <button onClick={() => setIsCartOpen(false)} className="text-gray-500 hover:text-black font-bold p-2 text-xl">&times;</button>
+                                </div>
+
+                                {/* Cart Items */}
+                                <div className="flex-1 overflow-y-auto p-4">
+                                    {hasZeptoMilk && (
+                                        <div className="mb-4 bg-green-50 border border-green-200 rounded-lg p-3 text-sm text-green-800 shadow-sm">
+                                            <strong className="block mb-1">✨ Optimizer Alert!</strong>
+                                            Moving your Milk from <strong>Zepto</strong> to <strong>Blinkit</strong> will save you <strong>₹10</strong> in platform fees with only a 2 min ETA difference.
+                                            <button onClick={optimizeCart} className="mt-2 bg-green-600 text-white px-3 py-1.5 rounded font-bold hover:bg-green-700 w-full shadow">
+                                                Apply Optimization
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    {cart.length === 0 ? (
+                                        <div className="h-full flex flex-col items-center justify-center text-gray-400">
+                                            <div className="text-6xl mb-4">🛒</div>
+                                            <p>Your Omni-Cart is empty.</p>
+                                        </div>
+                                    ) : (
+                                        cart.map((item, index) => (
+                                            <div key={index} className="bg-white p-3 rounded-lg shadow-sm border border-gray-100 mb-3 flex gap-3 relative">
+                                                <button onClick={() => removeFromCart(index)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500">&times;</button>
+                                                <div className="w-16 h-16 bg-gray-50 rounded flex items-center justify-center text-3xl shrink-0">
+                                                    {item.image}
+                                                </div>
+                                                <div className="flex-1">
+                                                    <h4 className="font-bold text-sm text-gray-800 leading-tight pr-4">{item.name}</h4>
+                                                    <div className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                                                        Fulfillment by <strong className="text-gray-700">{item.platform}</strong>
+                                                    </div>
+                                                    <div className="flex justify-between items-end mt-2">
+                                                        <span className="font-black text-brand-orange">₹{item.price.toLocaleString('en-IN')}</span>
+                                                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${item.type === 'qc' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
+                                                            ETA: {item.eta}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+
+                                {/* Bill Details */}
+                                {cart.length > 0 && (
+                                    <div className="bg-white p-4 rounded-t-2xl shadow-[0_-4px_15px_rgba(0,0,0,0.05)] border-t">
+                                        <h3 className="font-bold text-sm mb-3">Bill Details</h3>
+                                        <div className="flex justify-between text-sm text-gray-600 mb-2">
+                                            <span>Item Total</span>
+                                            <span>₹{subtotal.toLocaleString('en-IN')}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm text-gray-600 mb-3">
+                                            <span>Combined Platform & Surge Fees</span>
+                                            <span className="text-red-500">+₹{totalFees.toLocaleString('en-IN')}</span>
+                                        </div>
+                                        <div className="border-t border-dashed my-3"></div>
+                                        <div className="flex justify-between font-black text-lg mb-4">
+                                            <span>Total (INR)</span>
+                                            <span>₹{total.toLocaleString('en-IN')}</span>
+                                        </div>
+                                        
+                                        <button onClick={() => alert(`Escrow Locked for ₹${total.toLocaleString('en-IN')}! Dispatching orders simultaneously to ` + [...new Set(cart.map(i=>i.platform))].join(', ') + '.')} className="w-full bg-green-600 hover:bg-green-700 text-white font-black py-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                                            PAY ONCE (ESCROW) <span className="opacity-50">|</span> ₹{total.toLocaleString('en-IN')}
+                                        </button>
+                                        <p className="text-[10px] text-center text-gray-400 mt-2">Secured by Razorpay Route. Partial refunds automated.</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
-                <div class="cart-summary">
-                    <div class="summary-row"><span>Subtotal:</span> <span id="cartSubtotal">$0.00</span></div>
-                    <div class="summary-row"><span>Delivery Fees:</span> <span id="cartDelivery">$0.00</span></div>
-                    <div class="summary-row total"><span>Total:</span> <span id="cartTotal">$0.00</span></div>
-                    <button class="checkout-btn" onclick="checkout()">Checkout All</button>
-                </div>
-            </aside>
-        </div>
-    </main>
-    <script src="app.js"></script>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+
+        // Initialize Lucide icons
+        setTimeout(() => {
+            if (window.lucide) window.lucide.createIcons();
+        }, 1000);
+    </script>
+    <style>
+        .animate-slide-in { animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+    </style>
 </body>
 </html>
