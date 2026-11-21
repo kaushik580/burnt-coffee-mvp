@@ -42,8 +42,13 @@ const StarIcon = ({ className }) => (
         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
     </svg>
 );
+const XIcon = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+);
 
-// --- 1. GENERATE 1000 MOCK PRODUCTS WITH ROCK-SOLID STATIC UNSPLASH IMAGES ---
+// --- 1. GENERATE 1000 MOCK PRODUCTS WITH STATIC UNSPLASH CDNs ---
 const categories = ['Electronics', 'Groceries', 'Fashion', 'Beauty', 'Pharmacy'];
 const brands = {
     'Electronics': ['Apple', 'Samsung', 'Sony', 'Dell', 'HP', 'Asus', 'Bose', 'OnePlus', 'JBL'],
@@ -60,7 +65,6 @@ const productTypes = {
     'Pharmacy': ['Biozyme Whey 1kg', 'Chyawanprash 500g', 'Multivitamin (60 Tabs)', 'Ashwagandha Extract', 'Omega-3 Fish Oil Capsules']
 };
 
-// Hardcoding direct high-res image URLs to ensure they never break due to rate limits or API keywords
 const categoryImages = {
     'Electronics': [
         "https://images.unsplash.com/photo-1616348436168-de43ad0db179?q=80&w=400&auto=format&fit=crop",
@@ -69,25 +73,25 @@ const categoryImages = {
         "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?q=80&w=400&auto=format&fit=crop"
     ],
     'Groceries': [
-        "https://images.unsplash.com/photo-1550583724-b2692b85b150?q=80&w=400&auto=format&fit=crop", // Milk
-        "https://images.unsplash.com/photo-1599598425947-3300262b660f?q=80&w=400&auto=format&fit=crop", // Cashews
-        "https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=400&auto=format&fit=crop", // Bakery/Flour
-        "https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?q=80&w=400&auto=format&fit=crop"  // Cake/Sweets
+        "https://images.unsplash.com/photo-1550583724-b2692b85b150?q=80&w=400&auto=format&fit=crop", 
+        "https://images.unsplash.com/photo-1599598425947-3300262b660f?q=80&w=400&auto=format&fit=crop", 
+        "https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=400&auto=format&fit=crop", 
+        "https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?q=80&w=400&auto=format&fit=crop"  
     ],
     'Fashion': [
-        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=400&auto=format&fit=crop", // Sneaker
-        "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=400&auto=format&fit=crop", // Shirt
-        "https://images.unsplash.com/photo-1604171354674-80b62e49ef8f?q=80&w=400&auto=format&fit=crop"  // Jacket
+        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=400&auto=format&fit=crop", 
+        "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=400&auto=format&fit=crop", 
+        "https://images.unsplash.com/photo-1604171354674-80b62e49ef8f?q=80&w=400&auto=format&fit=crop"  
     ],
     'Beauty': [
-        "https://images.unsplash.com/photo-1586495777744-4413f21062fa?q=80&w=400&auto=format&fit=crop", // Makeup
-        "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?q=80&w=400&auto=format&fit=crop", // Skincare
-        "https://images.unsplash.com/photo-1596462502278-27bf85033e5a?q=80&w=400&auto=format&fit=crop"  // Bottles
+        "https://images.unsplash.com/photo-1586495777744-4413f21062fa?q=80&w=400&auto=format&fit=crop", 
+        "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?q=80&w=400&auto=format&fit=crop", 
+        "https://images.unsplash.com/photo-1596462502278-27bf85033e5a?q=80&w=400&auto=format&fit=crop"  
     ],
     'Pharmacy': [
-        "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?q=80&w=400&auto=format&fit=crop", // Whey Protein
-        "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=400&auto=format&fit=crop", // Pills
-        "https://images.unsplash.com/photo-1550572017-edb30d32bb58?q=80&w=400&auto=format&fit=crop"  // Supplements
+        "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?q=80&w=400&auto=format&fit=crop", 
+        "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=400&auto=format&fit=crop", 
+        "https://images.unsplash.com/photo-1550572017-edb30d32bb58?q=80&w=400&auto=format&fit=crop"  
     ]
 };
 
@@ -101,12 +105,14 @@ const generateMockData = () => {
     data.push({ 
         id: 9998, name: "Nandini Full Cream Milk 1L", category: "Groceries", 
         price: 60, originalPrice: 65, platform: "Zepto", eta: "10 MINS", type: "qc", 
-        imageUrl: milkUrl, fee: 35, rating: 4.5, reviews: 1200 
+        imageUrl: milkUrl, fee: 35, rating: 4.5, reviews: 1200,
+        desc: "Fresh, unadulterated full cream milk sourced directly from local dairy farms. Perfect for daily consumption, tea, coffee, and sweets."
     });
     data.push({ 
         id: 9999, name: "Nandini Full Cream Milk 1L", category: "Groceries", 
         price: 62, originalPrice: 65, platform: "Blinkit", eta: "14 MINS", type: "qc", 
-        imageUrl: milkUrl, fee: 0, rating: 4.7, reviews: 3400 
+        imageUrl: milkUrl, fee: 0, rating: 4.7, reviews: 3400,
+        desc: "Fresh, unadulterated full cream milk sourced directly from local dairy farms. Perfect for daily consumption, tea, coffee, and sweets."
     });
 
     for(let i = 1; i <= 1000; i++) {
@@ -119,7 +125,6 @@ const generateMockData = () => {
         let platform = platforms[Math.floor(Math.random() * platforms.length)];
         let isQC = ['Zepto', 'Blinkit', 'Swiggy Instamart'].includes(platform);
         
-        // Logical rules (e.g. Fashion is rarely on Quick Commerce)
         if (cat === 'Fashion' && isQC && Math.random() > 0.1) {
             platform = ['Amazon', 'Flipkart', 'Myntra'][Math.floor(Math.random() * 3)];
             isQC = false;
@@ -132,7 +137,6 @@ const generateMockData = () => {
         if(cat === 'Beauty') basePrice = 300 + Math.floor(Math.random() * 2000);
         if(cat === 'Pharmacy') basePrice = 200 + Math.floor(Math.random() * 3000);
 
-        // Pick a reliable image from the static arrays mapped above
         const imgArray = categoryImages[cat];
         const selectedImage = imgArray[Math.floor(Math.random() * imgArray.length)];
 
@@ -148,7 +152,8 @@ const generateMockData = () => {
             imageUrl: selectedImage,
             fee: isQC ? Math.floor(Math.random() * 40) + 10 : 0,
             rating: (Math.random() * 1.5 + 3.5).toFixed(1),
-            reviews: Math.floor(Math.random() * 5000) + 10
+            reviews: Math.floor(Math.random() * 5000) + 10,
+            desc: `High quality ${prod.toLowerCase()} manufactured by ${brand}. Backed by our multi-platform authenticity guarantee. Check below for detailed extensions and add-ons.`
         });
     }
     return data;
@@ -162,6 +167,7 @@ function App() {
     const [search, setSearch] = useState("");
     const [cart, setCart] = useState([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null); // For Product Details Page
     
     // Add-on options
     const [rainPackaging, setRainPackaging] = useState(false);
@@ -173,14 +179,15 @@ function App() {
             res = res.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.category.toLowerCase().includes(search.toLowerCase()));
         }
         if (location && location.tier !== 1) {
-            res = res.filter(p => p.type !== 'qc'); // Lock out Q-Commerce for Tier 3
+            res = res.filter(p => p.type !== 'qc'); 
         }
-        return res.slice(0, 300); // Render 300 for DOM performance, but search sweeps all 1000
+        return res.slice(0, 300); // Render 300 for DOM performance
     }, [search, location]);
 
     const addToCart = (item) => {
         setCart([...cart, item]);
         setIsCartOpen(true);
+        if(selectedProduct) setSelectedProduct(null); // Close modal if open
     };
 
     const removeFromCart = (index) => {
@@ -189,20 +196,17 @@ function App() {
         setCart(newCart);
     };
 
-    // Knapsack / Fee Math
+    // Math
     const subtotal = cart.reduce((sum, item) => sum + item.price, 0);
     const platformsInCart = [...new Set(cart.map(i => i.platform))];
     let totalFees = 0;
     platformsInCart.forEach(p => {
         const pItems = cart.filter(i => i.platform === p);
-        const maxFee = Math.max(...pItems.map(i => i.fee));
-        totalFees += maxFee;
+        totalFees += Math.max(...pItems.map(i => i.fee));
     });
     
     let addOns = 0;
     if(rainPackaging) addOns += 15;
-    if(greenDelivery) addOns += 0; 
-
     const total = subtotal + totalFees + addOns;
 
     // Mascot Optimizer Trigger
@@ -323,16 +327,90 @@ function App() {
 
                 {/* Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                    {/* Inject Specific Zepto Item first for demo if no search */}
                     {!search && location?.tier === 1 && (
-                        <ProductCard item={ALL_PRODUCTS.find(i=>i.id===9998)} addToCart={addToCart} />
+                        <ProductCard item={ALL_PRODUCTS.find(i=>i.id===9998)} addToCart={addToCart} onSelect={setSelectedProduct} />
                     )}
-                    {/* Render rest */}
                     {displayProducts.filter(i=>i.id!==9998).map(item => (
-                        <ProductCard key={item.id} item={item} addToCart={addToCart} />
+                        <ProductCard key={item.id} item={item} addToCart={addToCart} onSelect={setSelectedProduct} />
                     ))}
                 </div>
             </main>
+
+            {/* PRODUCT DETAILS MODAL */}
+            {selectedProduct && (
+                <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-5xl flex flex-col md:flex-row overflow-hidden shadow-2xl relative animate-slide-up border dark:border-gray-700">
+                        
+                        <button onClick={() => setSelectedProduct(null)} className="absolute top-4 right-4 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-full p-2 hover:bg-gray-300 dark:hover:bg-gray-600 transition z-20 shadow-md">
+                            <XIcon className="w-5 h-5" />
+                        </button>
+                        
+                        {/* Image Left Side */}
+                        <div className="w-full md:w-1/2 bg-gray-100 dark:bg-gray-700 h-64 md:h-auto relative flex items-center justify-center p-8">
+                            <img src={selectedProduct.imageUrl} alt={selectedProduct.name} className="max-w-full max-h-full object-contain drop-shadow-2xl rounded-xl" />
+                            <div className={`absolute top-4 left-4 flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-black shadow-md ${selectedProduct.type === 'qc' ? 'bg-gradient-to-r from-orange-100 to-orange-50 text-[#fc8019] border border-orange-200' : 'bg-gradient-to-r from-blue-100 to-blue-50 text-blue-700 border border-blue-200'}`}>
+                                {selectedProduct.type === 'qc' ? <LightningIcon className="w-4 h-4"/> : <TruckIcon className="w-4 h-4"/>}
+                                {selectedProduct.eta}
+                            </div>
+                        </div>
+
+                        {/* Details Right Side */}
+                        <div className="w-full md:w-1/2 p-6 md:p-10 flex flex-col max-h-[85vh] overflow-y-auto hide-scroll">
+                            <div className="text-xs font-black text-gray-400 tracking-widest uppercase mb-2">{selectedProduct.category}</div>
+                            <h2 className="text-3xl font-black text-[#232f3e] dark:text-white leading-tight mb-4">{selectedProduct.name}</h2>
+                            
+                            <div className="flex items-center gap-3 mb-6">
+                                <span className="bg-green-600 text-white text-sm font-black px-2 py-1 rounded-md flex items-center gap-1 shadow-sm">{selectedProduct.rating} <StarIcon className="w-3 h-3" /></span>
+                                <span className="text-sm font-semibold text-gray-500">{selectedProduct.reviews.toLocaleString('en-IN')} Ratings & Reviews</span>
+                            </div>
+
+                            <div className="flex items-end gap-3 mb-6">
+                                <span className="text-5xl font-black text-[#fc8019]">₹{selectedProduct.price.toLocaleString('en-IN')}</span>
+                                <span className="text-xl font-bold text-gray-400 line-through mb-1">₹{selectedProduct.originalPrice.toLocaleString('en-IN')}</span>
+                                <span className="text-green-600 font-black mb-1.5 ml-2 text-lg">{Math.round((1 - selectedProduct.price/selectedProduct.originalPrice)*100)}% OFF</span>
+                            </div>
+                            
+                            <p className="text-gray-600 dark:text-gray-300 text-sm mb-6 leading-relaxed">
+                                {selectedProduct.desc}
+                            </p>
+
+                            <div className="bg-gray-50 dark:bg-gray-700/50 rounded-2xl p-5 mb-6 border border-gray-200 dark:border-gray-600">
+                                <h3 className="font-black text-sm mb-4 dark:text-white uppercase tracking-wider text-gray-500">Distributed Fulfillment Details</h3>
+                                <div className="flex justify-between items-center mb-3">
+                                    <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">Target Platform</span>
+                                    <span className="font-black text-gray-800 dark:text-white bg-white dark:bg-gray-600 px-3 py-1 rounded border dark:border-gray-500 shadow-sm">{selectedProduct.platform}</span>
+                                </div>
+                                <div className="flex justify-between items-center mb-3">
+                                    <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">Delivery SLA ETA</span>
+                                    <span className="font-black text-blue-600 dark:text-blue-400 flex items-center gap-1"><TruckIcon className="w-4 h-4"/> {selectedProduct.eta}</span>
+                                </div>
+                                <div className="flex justify-between items-center pt-3 border-t border-dashed dark:border-gray-600">
+                                    <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">Dynamic Live Fees</span>
+                                    <span className={selectedProduct.fee > 0 ? "font-black text-red-500" : "font-black text-green-600"}>
+                                        {selectedProduct.fee > 0 ? `+ ₹${selectedProduct.fee} Surge Applied` : "FREE Delivery ✓"}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="mb-8">
+                                <h3 className="font-black text-sm mb-4 dark:text-white uppercase tracking-wider text-gray-500">Buyer Protections & Add-ons</h3>
+                                <ul className="space-y-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    <li className="flex items-center gap-3"><ShieldIcon className="w-5 h-5 text-green-500"/> 100% Authentic Product Guarantee</li>
+                                    <li className="flex items-center gap-3"><span className="text-xl">🔄</span> 7-Day Hassle-Free Escrow Replacement</li>
+                                    <li className="flex items-center gap-3"><span className="text-xl">🧾</span> GST Input Tax Credit Invoice Available</li>
+                                    {selectedProduct.category === 'Electronics' && <li className="flex items-center gap-3"><span className="text-xl">🛡️</span> 1 Year Manufacturer Warranty</li>}
+                                </ul>
+                            </div>
+                            
+                            <div className="mt-auto pt-6 border-t dark:border-gray-700">
+                                <button onClick={() => addToCart(selectedProduct)} className="w-full bg-[#fc8019] hover:bg-orange-600 text-white font-black py-4 rounded-xl shadow-[0_10px_20px_rgba(252,128,25,0.3)] hover:shadow-[0_10px_20px_rgba(252,128,25,0.5)] transition transform hover:-translate-y-1 text-lg flex items-center justify-center gap-3">
+                                    <CartIcon className="w-6 h-6" /> ADD TO OMNI-CART
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Omni-Cart Sidebar Overlay */}
             {isCartOpen && (
@@ -341,7 +419,9 @@ function App() {
                         
                         <div className="p-5 bg-white dark:bg-gray-800 border-b dark:border-gray-700 flex justify-between items-center shadow-sm z-10">
                             <h2 className="text-2xl font-black dark:text-white text-[#232f3e] flex items-center gap-2"><CartIcon className="w-6 h-6"/> The Omni-Cart</h2>
-                            <button onClick={() => setIsCartOpen(false)} className="text-gray-400 hover:text-[#fc8019] text-3xl font-bold transition">&times;</button>
+                            <button onClick={() => setIsCartOpen(false)} className="text-gray-400 hover:text-[#fc8019] text-3xl font-bold transition">
+                                <XIcon className="w-6 h-6" />
+                            </button>
                         </div>
 
                         <div className="flex-1 overflow-y-auto p-5 relative">
@@ -372,7 +452,9 @@ function App() {
                                 <div className="space-y-4">
                                     {cart.map((item, index) => (
                                         <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex gap-4 relative group">
-                                            <button onClick={() => removeFromCart(index)} className="absolute top-2 right-2 text-gray-300 hover:text-red-500 transition opacity-0 group-hover:opacity-100 font-bold text-lg">&times;</button>
+                                            <button onClick={() => removeFromCart(index)} className="absolute top-2 right-2 text-gray-300 hover:text-red-500 transition opacity-0 group-hover:opacity-100 font-bold p-1">
+                                                <XIcon className="w-4 h-4" />
+                                            </button>
                                             <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center shrink-0 border dark:border-gray-600 overflow-hidden">
                                                 <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
                                             </div>
@@ -442,11 +524,11 @@ function App() {
     );
 }
 
-function ProductCard({ item, addToCart }) {
+function ProductCard({ item, addToCart, onSelect }) {
     return (
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 dark:border-gray-700 flex flex-col relative group transform hover:-translate-y-1">
             
-            {/* Badges: Swiggy Style */}
+            {/* Badges */}
             <div className={`absolute top-3 left-3 px-2.5 py-1 rounded-md text-[10px] font-black shadow-md z-10 flex items-center gap-1 ${item.type === 'qc' ? 'bg-gradient-to-r from-orange-100 to-orange-50 text-[#fc8019] border border-orange-200' : 'bg-gradient-to-r from-blue-100 to-blue-50 text-blue-700 border border-blue-200'}`}>
                 {item.type === 'qc' ? <LightningIcon className="w-3 h-3"/> : <TruckIcon className="w-3 h-3"/>}
                 {item.eta}
@@ -456,13 +538,13 @@ function ProductCard({ item, addToCart }) {
                 {item.platform}
             </div>
 
-            <div className="h-48 w-full bg-gray-100 dark:bg-gray-700 overflow-hidden relative">
+            <div onClick={() => onSelect(item)} className="h-48 w-full bg-gray-100 dark:bg-gray-700 overflow-hidden relative cursor-pointer">
                 <img src={item.imageUrl} alt={item.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out" />
             </div>
             
             <div className="p-5 flex flex-col flex-1">
                 <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1.5">{item.category}</div>
-                <h3 className="font-black text-[#232f3e] dark:text-white text-sm leading-snug mb-3 line-clamp-2 h-10 group-hover:text-[#fc8019] transition-colors">{item.name}</h3>
+                <h3 onClick={() => onSelect(item)} className="font-black text-[#232f3e] dark:text-white text-sm leading-snug mb-3 line-clamp-2 h-10 group-hover:text-[#fc8019] transition-colors cursor-pointer">{item.name}</h3>
                 
                 <div className="flex items-center gap-1.5 mb-4">
                     <span className="bg-green-600 text-white text-[10px] font-black px-1.5 py-0.5 rounded flex items-center gap-0.5 shadow-sm">{item.rating} <StarIcon className="w-2.5 h-2.5" /></span>
