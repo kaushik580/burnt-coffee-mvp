@@ -43,52 +43,93 @@ const StarIcon = ({ className }) => (
     </svg>
 );
 
-// --- 1. GENERATE 1000 MOCK PRODUCTS WITH REAL IMAGES ---
+// --- 1. GENERATE 1000 MOCK PRODUCTS WITH STATIC UNSPLASH CDNs ---
+const categories = ['Electronics', 'Groceries', 'Fashion', 'Beauty', 'Pharmacy'];
+const brands = {
+    'Electronics': ['Apple', 'Samsung', 'Sony', 'Dell', 'HP', 'Asus', 'Bose', 'OnePlus', 'JBL'],
+    'Groceries': ['Nandini', 'Amul', 'Aashirvaad', 'Tata', 'Fortune', 'Farmley', 'Haldirams', 'Nescafe'],
+    'Fashion': ['Nike', 'Adidas', 'Puma', 'Levis', 'H&M', 'Zara', 'Polo', 'Wrogn'],
+    'Beauty': ['Maybelline', 'Loreal', 'MAC', 'Lakme', 'Nykaa', 'Minimalist', 'Plum'],
+    'Pharmacy': ['MuscleBlaze', 'Optimum Nutrition', 'Dabur', 'Himalaya', 'Revital', 'Zandu']
+};
+const productTypes = {
+    'Electronics': ['Smartphone Pro', 'Laptop', 'Wireless Earbuds', 'Smartwatch Series X', 'Tablet Ultra', '4K Monitor', 'Bluetooth Speaker'],
+    'Groceries': ['Full Cream Milk 1L', 'Select Atta 5kg', 'Basmati Rice 1kg', 'Premium Cashews 500g', 'Cold Pressed Oil 1L', 'Gold Filter Coffee 500g', 'Oats 1kg'],
+    'Fashion': ['Air Sneakers', 'Cotton Crewneck T-Shirt', 'Denim Jacket', 'Slim Fit Jeans', 'Running Shoes', 'Sports Tracksuit'],
+    'Beauty': ['SuperStay Matte Lipstick', 'Vitamin C Serum', 'Sunscreen SPF 50', 'Hydrating Moisturizer', 'Liquid Foundation', 'Purifying Face Wash'],
+    'Pharmacy': ['Biozyme Whey 1kg', 'Chyawanprash 500g', 'Multivitamin (60 Tabs)', 'Ashwagandha Extract', 'Omega-3 Fish Oil Capsules']
+};
+
 const baseItems = [
-    { n: "iPhone 15 Pro Max", c: "Electronics", p: 145000, kw: "smartphone,iphone" },
-    { n: "Nandini Full Cream Milk 1L", c: "Groceries", p: 60, kw: "milk,carton" },
-    { n: "Sony WH-1000XM5", c: "Electronics", p: 25000, kw: "headphones" },
-    { n: "Farmley Premium Cashews", c: "Groceries", p: 450, kw: "cashews,nuts" },
-    { n: "Nike Air Force 1 '07", c: "Fashion", p: 7495, kw: "sneakers,shoes" },
-    { n: "MacBook Air M3 (16GB)", c: "Electronics", p: 115000, kw: "laptop,macbook" },
-    { n: "Aashirvaad Select Atta 5kg", c: "Groceries", p: 280, kw: "flour,wheat" },
-    { n: "Maybelline SuperStay Matte", c: "Beauty", p: 550, kw: "lipstick,makeup" },
-    { n: "MuscleBlaze Biozyme Whey", c: "Pharmacy", p: 2400, kw: "protein,supplement" },
-    { n: "Atomic Habits (Hardcover)", c: "Books", p: 450, kw: "book,reading" },
-    { n: "Pampers Active Baby (L)", c: "Groceries", p: 850, kw: "baby,diapers" },
-    { n: "Samsung Galaxy S24 Ultra", c: "Electronics", p: 129000, kw: "samsung,phone" }
+    { n: "iPhone 15 Pro Max", c: "Electronics", p: 145000, imgUrl: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=400&q=80" },
+    { n: "Nandini Full Cream Milk 1L", c: "Groceries", p: 60, imgUrl: "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=400&q=80" },
+    { n: "Sony WH-1000XM5", c: "Electronics", p: 25000, imgUrl: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=400&q=80" },
+    { n: "Farmley Premium Cashews", c: "Groceries", p: 450, imgUrl: "https://images.unsplash.com/photo-1599598425947-3300262b660f?auto=format&fit=crop&w=400&q=80" },
+    { n: "Nike Air Force 1 '07", c: "Fashion", p: 7495, imgUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=400&q=80" },
+    { n: "MacBook Air M3 (16GB)", c: "Electronics", p: 115000, imgUrl: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=400&q=80" },
+    { n: "Aashirvaad Select Atta 5kg", c: "Groceries", p: 280, imgUrl: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=400&q=80" },
+    { n: "Maybelline SuperStay Matte", c: "Beauty", p: 550, imgUrl: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=400&q=80" },
+    { n: "MuscleBlaze Biozyme Whey", c: "Pharmacy", p: 2400, imgUrl: "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?auto=format&fit=crop&w=400&q=80" },
+    { n: "Atomic Habits (Hardcover)", c: "Books", p: 450, imgUrl: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=400&q=80" },
+    { n: "Pampers Active Baby (L)", c: "Groceries", p: 850, imgUrl: "https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=400&q=80" },
+    { n: "Samsung Galaxy S24 Ultra", c: "Electronics", p: 129000, imgUrl: "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?auto=format&fit=crop&w=400&q=80" }
 ];
 const platforms = ['Amazon', 'Flipkart', 'Myntra', 'Zepto', 'Blinkit', 'Swiggy Instamart'];
 
 const generateMockData = () => {
     const data = [];
-    // Inject specific items to demo the Knapsack Optimizer
-    data.push({ id: 9998, name: "Nandini Full Cream Milk 1L", category: "Groceries", price: 60, originalPrice: 65, platform: "Zepto", eta: "10 MINS", type: "qc", imageUrl: "https://loremflickr.com/400/400/milk,carton?lock=9998", fee: 35, rating: 4.5, reviews: 1200 });
-    data.push({ id: 9999, name: "Nandini Full Cream Milk 1L", category: "Groceries", price: 62, originalPrice: 65, platform: "Blinkit", eta: "14 MINS", type: "qc", imageUrl: "https://loremflickr.com/400/400/milk,carton?lock=9999", fee: 0, rating: 4.7, reviews: 3400 });
+    const milkUrl = "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=400&q=80";
+    
+    // Inject specific items to demo the Knapsack Optimizer (Mascot)
+    data.push({ 
+        id: 9998, name: "Nandini Full Cream Milk 1L", category: "Groceries", 
+        price: 60, originalPrice: 65, platform: "Zepto", eta: "10 MINS", type: "qc", 
+        imageUrl: milkUrl, fee: 35, rating: 4.5, reviews: 1200 
+    });
+    data.push({ 
+        id: 9999, name: "Nandini Full Cream Milk 1L", category: "Groceries", 
+        price: 62, originalPrice: 65, platform: "Blinkit", eta: "14 MINS", type: "qc", 
+        imageUrl: milkUrl, fee: 0, rating: 4.7, reviews: 3400 
+    });
 
     for(let i = 1; i <= 1000; i++) {
-        const base = baseItems[i % baseItems.length];
+        const cat = categories[Math.floor(Math.random() * categories.length)];
+        const brandList = brands[cat];
+        const typeList = productTypes[cat];
+        const brand = brandList[Math.floor(Math.random() * brandList.length)];
+        const prod = typeList[Math.floor(Math.random() * typeList.length)];
+        
         let platform = platforms[Math.floor(Math.random() * platforms.length)];
         let isQC = ['Zepto', 'Blinkit', 'Swiggy Instamart'].includes(platform);
         
-        if (base.c === 'Fashion' && isQC && Math.random() > 0.1) {
-            platform = ['Amazon', 'Flipkart', 'Myntra'][Math.floor(Math.random()*3)];
+        if (cat === 'Fashion' && isQC && Math.random() > 0.1) {
+            platform = ['Amazon', 'Flipkart', 'Myntra'][Math.floor(Math.random() * 3)];
             isQC = false;
         }
         
+        let basePrice = 500;
+        if(cat === 'Electronics') basePrice = 5000 + Math.floor(Math.random() * 95000);
+        if(cat === 'Groceries') basePrice = 40 + Math.floor(Math.random() * 800);
+        if(cat === 'Fashion') basePrice = 800 + Math.floor(Math.random() * 4000);
+        if(cat === 'Beauty') basePrice = 300 + Math.floor(Math.random() * 2000);
+        if(cat === 'Pharmacy') basePrice = 200 + Math.floor(Math.random() * 3000);
+
+        // Get matching static image based on category
+        const imgObj = baseItems.find(b => b.c === cat) || baseItems[0];
+
         data.push({
             id: i,
-            name: `${base.n} (V-${Math.floor(Math.random()*1000)})`,
-            category: base.c,
-            price: base.p + Math.floor(Math.random()*(base.p*0.1)),
-            originalPrice: base.p + Math.floor(base.p*0.2),
+            name: `${brand} ${prod}`,
+            category: cat,
+            price: basePrice,
+            originalPrice: basePrice + Math.floor(basePrice * 0.15),
             platform: platform,
-            eta: isQC ? `${Math.floor(Math.random()*15)+8} MINS` : `${Math.floor(Math.random()*3)+1} DAYS`,
+            eta: isQC ? `${Math.floor(Math.random() * 15) + 8} MINS` : `${Math.floor(Math.random() * 3) + 1} DAYS`,
             type: isQC ? 'qc' : 'ecom',
-            imageUrl: `https://loremflickr.com/400/400/${base.kw}?lock=${i}`,
-            fee: isQC ? Math.floor(Math.random()*40)+10 : 0,
+            imageUrl: imgObj.imgUrl, // Browser caches this, no rate limits!
+            fee: isQC ? Math.floor(Math.random() * 40) + 10 : 0,
             rating: (Math.random() * 1.5 + 3.5).toFixed(1),
-            reviews: Math.floor(Math.random()*5000)+10
+            reviews: Math.floor(Math.random() * 5000) + 10
         });
     }
     return data;
@@ -113,25 +154,36 @@ function App() {
             res = res.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.category.toLowerCase().includes(search.toLowerCase()));
         }
         if (location && location.tier !== 1) {
-            res = res.filter(p => p.type !== 'qc'); // Lock out Q-Commerce for Tier 3
+            res = res.filter(p => p.type !== 'qc'); 
         }
-        return res.slice(0, 300); // Render 300 for DOM performance
+        return res.slice(0, 300); // 300 max rendered to keep DOM fast
     }, [search, location]);
 
-    const addToCart = (item) => { setCart([...cart, item]); setIsCartOpen(true); };
-    const removeFromCart = (index) => { const newCart = [...cart]; newCart.splice(index, 1); setCart(newCart); };
+    const addToCart = (item) => {
+        setCart([...cart, item]);
+        setIsCartOpen(true);
+    };
 
-    // Math
+    const removeFromCart = (index) => {
+        const newCart = [...cart];
+        newCart.splice(index, 1);
+        setCart(newCart);
+    };
+
+    // Knapsack / Fee Math
     const subtotal = cart.reduce((sum, item) => sum + item.price, 0);
     const platformsInCart = [...new Set(cart.map(i => i.platform))];
     let totalFees = 0;
     platformsInCart.forEach(p => {
         const pItems = cart.filter(i => i.platform === p);
-        totalFees += Math.max(...pItems.map(i => i.fee));
+        const maxFee = Math.max(...pItems.map(i => i.fee));
+        totalFees += maxFee;
     });
     
     let addOns = 0;
     if(rainPackaging) addOns += 15;
+    if(greenDelivery) addOns += 0; 
+
     const total = subtotal + totalFees + addOns;
 
     // Mascot Optimizer Trigger
@@ -144,8 +196,9 @@ function App() {
 
     const checkout = () => {
         if(cart.length === 0) return alert("Cart is empty");
-        alert(`Razorpay Route Escrow Locked for ₹${total.toLocaleString('en-IN')}!\n\nBURNT COFFEE IS DISPATCHING ORDERS TO:\n- ${platformsInCart.join('\n- ')}\n\nYou will receive asynchronous tracking updates.`);
-        setCart([]); setIsCartOpen(false);
+        alert(`Razorpay Escrow Locked for ₹${total.toLocaleString('en-IN')}!\n\nBurnie says: "Dispatching your orders simultaneously to ${platformsInCart.join(', ')}. You will receive multiple deliveries!\n\nAdd-ons applied: ${rainPackaging ? 'Rain Packaging, ' : ''}${greenDelivery ? 'Green Delivery' : ''}"`);
+        setCart([]);
+        setIsCartOpen(false);
     };
 
     // --- VIEWS ---
@@ -170,7 +223,7 @@ function App() {
         return (
             <div className={`min-h-screen flex items-center justify-center ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'} animate-fade-in`}>
                 <div className={`p-10 rounded-2xl shadow-2xl w-[500px] text-center ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
-                    <MapPinIcon className="w-20 h-20 mx-auto mb-6 text-[#fc8019] animate-bounce" />
+                    <MapPinIcon className="w-20 h-20 mx-auto mb-6 text-[#fc8019] animate-bounce-slow" />
                     <h2 className="text-2xl font-black mb-4">Establishing Geohash...</h2>
                     <p className={`text-sm mb-8 font-medium leading-relaxed ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>To dynamically route your Omni-Cart, we need to map your coordinates against active Q-Commerce dark store polygons.</p>
                     <div className="flex flex-col gap-4">
@@ -188,7 +241,6 @@ function App() {
 
     return (
         <div className={`min-h-screen pb-20 ${darkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
-            {/* Header: Amazon Style Dark Slate */}
             <header className="bg-[#232f3e] text-white sticky top-0 z-40 shadow-xl">
                 <div className="container mx-auto px-4 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
@@ -235,7 +287,6 @@ function App() {
             </header>
 
             <main className="container mx-auto px-4 mt-8">
-                {/* Categories */}
                 <div className="flex justify-between items-end mb-8 flex-wrap gap-4">
                     <div className="flex gap-3 overflow-x-auto hide-scroll pb-2">
                         {['All', 'Electronics', 'Groceries', 'Fashion', 'Beauty', 'Pharmacy'].map(cat => (
@@ -249,20 +300,16 @@ function App() {
                     </div>
                 </div>
 
-                {/* Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                    {/* Inject Specific Zepto Item first for demo if no search */}
                     {!search && location?.tier === 1 && (
                         <ProductCard item={ALL_PRODUCTS.find(i=>i.id===9998)} addToCart={addToCart} />
                     )}
-                    {/* Render rest */}
                     {displayProducts.filter(i=>i.id!==9998).map(item => (
                         <ProductCard key={item.id} item={item} addToCart={addToCart} />
                     ))}
                 </div>
             </main>
 
-            {/* Omni-Cart Sidebar Overlay */}
             {isCartOpen && (
                 <div className="fixed inset-0 bg-black/70 z-50 flex justify-end backdrop-blur-sm transition-opacity animate-fade-in">
                     <div className="w-full max-w-md bg-gray-50 dark:bg-gray-900 h-full flex flex-col shadow-2xl animate-slide-in">
@@ -273,7 +320,6 @@ function App() {
                         </div>
 
                         <div className="flex-1 overflow-y-auto p-5 relative">
-                            {/* Mascot Optimizer Alert */}
                             {hasZeptoMilk && (
                                 <div className="mb-6 bg-orange-50 dark:bg-orange-900/30 border-2 border-[#fc8019] rounded-2xl p-5 shadow-lg relative overflow-hidden transform transition hover:scale-[1.02]">
                                     <CoffeeIcon className="absolute -right-4 -bottom-4 w-32 h-32 text-[#fc8019] opacity-10" />
@@ -372,9 +418,9 @@ function App() {
 
 function ProductCard({ item, addToCart }) {
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 dark:border-gray-700 flex flex-col relative group">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 dark:border-gray-700 flex flex-col relative group transform hover:-translate-y-1">
             
-            {/* Badges: Swiggy Style */}
+            {/* Badges */}
             <div className={`absolute top-3 left-3 px-2.5 py-1 rounded-md text-[10px] font-black shadow-md z-10 flex items-center gap-1 ${item.type === 'qc' ? 'bg-gradient-to-r from-orange-100 to-orange-50 text-[#fc8019] border border-orange-200' : 'bg-gradient-to-r from-blue-100 to-blue-50 text-blue-700 border border-blue-200'}`}>
                 {item.type === 'qc' ? <LightningIcon className="w-3 h-3"/> : <TruckIcon className="w-3 h-3"/>}
                 {item.eta}
@@ -384,7 +430,7 @@ function ProductCard({ item, addToCart }) {
                 {item.platform}
             </div>
 
-            <div className="h-48 w-full bg-gray-100 dark:bg-gray-700 overflow-hidden">
+            <div className="h-48 w-full bg-gray-100 dark:bg-gray-700 overflow-hidden relative">
                 <img src={item.imageUrl} alt={item.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out" />
             </div>
             
@@ -412,7 +458,7 @@ function ProductCard({ item, addToCart }) {
                         )}
                     </div>
                     
-                    <button onClick={() => addToCart(item)} className="w-full py-3 rounded-xl font-black text-[#fc8019] bg-orange-50 border-2 border-[#fc8019] transition-all duration-200 hover:bg-[#fc8019] hover:text-white shadow-sm hover:shadow-md">
+                    <button onClick={() => addToCart(item)} className="w-full py-3 rounded-xl font-black text-[#fc8019] bg-orange-50 border-2 border-[#fc8019] transition-all duration-200 hover:bg-[#fc8019] hover:text-white shadow-sm hover:shadow-md flex items-center justify-center gap-2">
                         ADD TO CART
                     </button>
                 </div>
