@@ -1,1 +1,1 @@
-Burnt Coffee Interactive Prototype\n\nBuilt with React and Tailwind CSS. Emulates an Amazon-style search with Swiggy Instamart-style quick commerce integrations and the Omni-Cart.
+# Burnt Coffee 1000 SKU Production Prototype\nFully updated with real imagery mapping.

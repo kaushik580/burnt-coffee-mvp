@@ -1,48 +1,76 @@
 
 const { useState, useEffect, useMemo } = React;
 
-// 1. GENERATE 1000 MOCK PRODUCTS
-const baseItems = [
-    { n: "iPhone 15 Pro Max", c: "Electronics", p: 145000, img: "📱" },
-    { n: "Nandini Full Cream Milk 1L", c: "Groceries", p: 60, img: "🥛" },
-    { n: "Sony WH-1000XM5", c: "Electronics", p: 25000, img: "🎧" },
-    { n: "Farmley Premium Cashews", c: "Groceries", p: 450, img: "🥜" },
-    { n: "Nike Air Force 1 '07", c: "Fashion", p: 7495, img: "👟" },
-    { n: "MacBook Air M3 (16GB)", c: "Electronics", p: 115000, img: "💻" },
-    { n: "Aashirvaad Select Atta 5kg", c: "Groceries", p: 280, img: "🌾" },
-    { n: "Maybelline SuperStay Matte", c: "Beauty", p: 550, img: "💄" },
-    { n: "MuscleBlaze Biozyme Whey", c: "Pharmacy", p: 2400, img: "💪" },
-    { n: "Atomic Habits (Hardcover)", c: "Books", p: 450, img: "📘" },
-    { n: "Pampers Active Baby (L)", c: "Groceries", p: 850, img: "👶" },
-    { n: "Samsung Galaxy S24 Ultra", c: "Electronics", p: 129000, img: "📱" }
-];
+// --- 1. GENERATE 1000 MOCK PRODUCTS WITH UNIQUE NAMES AND REAL IMAGES ---
+const categories = ['Electronics', 'Groceries', 'Fashion', 'Beauty', 'Pharmacy'];
+const brands = {
+    'Electronics': ['Apple', 'Samsung', 'Sony', 'Dell', 'HP', 'Asus', 'Bose', 'OnePlus', 'JBL'],
+    'Groceries': ['Nandini', 'Amul', 'Aashirvaad', 'Tata', 'Fortune', 'Farmley', 'Haldirams', 'Nescafe'],
+    'Fashion': ['Nike', 'Adidas', 'Puma', 'Levis', 'H&M', 'Zara', 'Polo', 'Wrogn'],
+    'Beauty': ['Maybelline', 'Loreal', 'MAC', 'Lakme', 'Nykaa', 'Minimalist', 'Plum'],
+    'Pharmacy': ['MuscleBlaze', 'Optimum Nutrition', 'Dabur', 'Himalaya', 'Revital', 'Zandu']
+};
+const productTypes = {
+    'Electronics': ['Smartphone Pro', 'Laptop', 'Wireless Earbuds', 'Smartwatch Series X', 'Tablet Ultra', '4K Monitor', 'Bluetooth Speaker'],
+    'Groceries': ['Full Cream Milk 1L', 'Select Atta 5kg', 'Basmati Rice 1kg', 'Premium Cashews 500g', 'Cold Pressed Oil 1L', 'Gold Filter Coffee 500g', 'Oats 1kg'],
+    'Fashion': ['Air Sneakers', 'Cotton Crewneck T-Shirt', 'Denim Jacket', 'Slim Fit Jeans', 'Running Shoes', 'Sports Tracksuit'],
+    'Beauty': ['SuperStay Matte Lipstick', 'Vitamin C Serum', 'Sunscreen SPF 50', 'Hydrating Moisturizer', 'Liquid Foundation', 'Purifying Face Wash'],
+    'Pharmacy': ['Biozyme Whey 1kg', 'Chyawanprash 500g', 'Multivitamin (60 Tabs)', 'Ashwagandha Extract', 'Omega-3 Fish Oil Capsules']
+};
 const platforms = ['Amazon', 'Flipkart', 'Myntra', 'Zepto', 'Blinkit', 'Swiggy Instamart'];
 
 const generateMockData = () => {
     const data = [];
-    // Inject specific items to demo the Knapsack Optimizer
-    data.push({ id: 9998, name: "Nandini Full Cream Milk 1L", category: "Groceries", price: 60, originalPrice: 65, platform: "Zepto", eta: "10 MINS", type: "qc", image: "🥛", fee: 35, rating: 4.5, reviews: 1200 });
-    data.push({ id: 9999, name: "Nandini Full Cream Milk 1L", category: "Groceries", price: 62, originalPrice: 65, platform: "Blinkit", eta: "14 MINS", type: "qc", image: "🥛", fee: 0, rating: 4.7, reviews: 3400 });
+    
+    // Inject specific items to demo the Knapsack Optimizer (Mascot)
+    data.push({ 
+        id: 9998, name: "Nandini Full Cream Milk 1L", category: "Groceries", 
+        price: 60, originalPrice: 65, platform: "Zepto", eta: "10 MINS", type: "qc", 
+        imageUrl: "https://picsum.photos/seed/milk9998/200/200", fee: 35, rating: 4.5, reviews: 1200 
+    });
+    data.push({ 
+        id: 9999, name: "Nandini Full Cream Milk 1L", category: "Groceries", 
+        price: 62, originalPrice: 65, platform: "Blinkit", eta: "14 MINS", type: "qc", 
+        imageUrl: "https://picsum.photos/seed/milk9999/200/200", fee: 0, rating: 4.7, reviews: 3400 
+    });
 
-    for(let i = 0; i < 998; i++) {
-        const base = baseItems[i % baseItems.length];
-        const platform = platforms[Math.floor(Math.random() * platforms.length)];
-        const isQC = ['Zepto', 'Blinkit', 'Swiggy Instamart'].includes(platform);
-        if (base.c === 'Fashion' && isQC && Math.random() > 0.1) continue; 
+    for(let i = 1; i <= 1000; i++) {
+        const cat = categories[Math.floor(Math.random() * categories.length)];
+        const brandList = brands[cat];
+        const typeList = productTypes[cat];
+        const brand = brandList[Math.floor(Math.random() * brandList.length)];
+        const prod = typeList[Math.floor(Math.random() * typeList.length)];
         
+        let platform = platforms[Math.floor(Math.random() * platforms.length)];
+        let isQC = ['Zepto', 'Blinkit', 'Swiggy Instamart'].includes(platform);
+        
+        // Logical rules (e.g. Fashion is rarely on Quick Commerce)
+        if (cat === 'Fashion' && isQC && Math.random() > 0.1) {
+            platform = ['Amazon', 'Flipkart', 'Myntra'][Math.floor(Math.random() * 3)];
+            isQC = false;
+        }
+        
+        let basePrice = 500;
+        if(cat === 'Electronics') basePrice = 5000 + Math.floor(Math.random() * 95000);
+        if(cat === 'Groceries') basePrice = 40 + Math.floor(Math.random() * 800);
+        if(cat === 'Fashion') basePrice = 800 + Math.floor(Math.random() * 4000);
+        if(cat === 'Beauty') basePrice = 300 + Math.floor(Math.random() * 2000);
+        if(cat === 'Pharmacy') basePrice = 200 + Math.floor(Math.random() * 3000);
+
         data.push({
-            id: i + 1,
-            name: `${base.n} (V-${Math.floor(Math.random()*1000)})`,
-            category: base.c,
-            price: base.p + Math.floor(Math.random()*(base.p*0.1)),
-            originalPrice: base.p + Math.floor(base.p*0.2),
+            id: i,
+            name: `${brand} ${prod}`,
+            category: cat,
+            price: basePrice,
+            originalPrice: basePrice + Math.floor(basePrice * 0.15),
             platform: platform,
-            eta: isQC ? `${Math.floor(Math.random()*15)+8} MINS` : `${Math.floor(Math.random()*3)+1} DAYS`,
+            eta: isQC ? `${Math.floor(Math.random() * 15) + 8} MINS` : `${Math.floor(Math.random() * 3) + 1} DAYS`,
             type: isQC ? 'qc' : 'ecom',
-            image: base.img,
-            fee: isQC ? Math.floor(Math.random()*40)+10 : 0,
+            // Using picsum seed to generate a consistent, unique, real photograph per product
+            imageUrl: `https://picsum.photos/seed/burntcoffee${i}/200/200`,
+            fee: isQC ? Math.floor(Math.random() * 40) + 10 : 0,
             rating: (Math.random() * 1.5 + 3.5).toFixed(1),
-            reviews: Math.floor(Math.random()*5000)+10
+            reviews: Math.floor(Math.random() * 5000) + 10
         });
     }
     return data;
@@ -56,6 +84,8 @@ function App() {
     const [search, setSearch] = useState("");
     const [cart, setCart] = useState([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
+    
+    // Add-on options
     const [rainPackaging, setRainPackaging] = useState(false);
     const [greenDelivery, setGreenDelivery] = useState(false);
 
@@ -67,7 +97,7 @@ function App() {
         if (location && location.tier !== 1) {
             res = res.filter(p => p.type !== 'qc'); // Lock out Q-Commerce for Tier 3
         }
-        return res.slice(0, 300); // Render 300 for DOM performance
+        return res.slice(0, 200); // Render 200 for DOM performance, but search sweeps all 1000
     }, [search, location]);
 
     const addToCart = (item) => {
@@ -81,20 +111,23 @@ function App() {
         setCart(newCart);
     };
 
-    // Math
+    // Knapsack / Fee Math
     const subtotal = cart.reduce((sum, item) => sum + item.price, 0);
     const platformsInCart = [...new Set(cart.map(i => i.platform))];
     let totalFees = 0;
     platformsInCart.forEach(p => {
         const pItems = cart.filter(i => i.platform === p);
-        totalFees += Math.max(...pItems.map(i => i.fee));
+        const maxFee = Math.max(...pItems.map(i => i.fee));
+        totalFees += maxFee;
     });
     
     let addOns = 0;
     if(rainPackaging) addOns += 15;
+    if(greenDelivery) addOns += 0; 
+
     const total = subtotal + totalFees + addOns;
 
-    // Optimizer
+    // Mascot Optimizer Trigger
     const hasZeptoMilk = cart.some(i => i.id === 9998);
     const optimizeCart = () => {
         const newCart = cart.filter(i => i.id !== 9998); 
@@ -109,9 +142,10 @@ function App() {
         setIsCartOpen(false);
     };
 
+    // --- VIEWS ---
     if (view === 'login') {
         return (
-            <div className={`min-h-screen flex items-center justify-center ${darkMode ? 'bg-gray-900' : 'bg-gray-100'} animate-fade-in`}>
+            <div className={`min-h-screen flex items-center justify-center ${darkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
                 <div className="bg-white dark:bg-gray-800 p-10 rounded-2xl shadow-2xl w-96 text-center transform transition-all hover:scale-105">
                     <div className="text-7xl mb-4">☕</div>
                     <h1 className="text-3xl font-black text-[#fc8019] mb-2 tracking-tight">BURNT COFFEE</h1>
@@ -147,7 +181,8 @@ function App() {
     }
 
     return (
-        <div className={`min-h-screen pb-20 ${darkMode ? 'dark' : ''}`}>
+        <div className={`min-h-screen pb-20 ${darkMode ? 'dark' : ''}`} style={{fontFamily: 'Inter, sans-serif'}}>
+            {/* Header: Amazon Style Dark Slate */}
             <header className="bg-[#232f3e] text-white sticky top-0 z-40 shadow-xl">
                 <div className="container mx-auto px-4 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
@@ -194,7 +229,8 @@ function App() {
             </header>
 
             <main className="container mx-auto px-4 mt-8">
-                <div className="flex justify-between items-end mb-8">
+                {/* Categories */}
+                <div className="flex justify-between items-end mb-8 flex-wrap gap-4">
                     <div className="flex gap-3 overflow-x-auto hide-scroll pb-2">
                         {['All', 'Electronics', 'Groceries', 'Fashion', 'Beauty', 'Pharmacy'].map(cat => (
                             <button key={cat} onClick={()=>setSearch(cat==='All'?'':cat)} className="px-6 py-2 bg-white dark:bg-gray-800 dark:text-white rounded-full shadow-md font-bold text-gray-700 hover:border-[#fc8019] border-2 border-transparent transition uppercase tracking-wide text-xs">
@@ -203,20 +239,24 @@ function App() {
                         ))}
                     </div>
                     <div className="text-sm font-bold text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 px-4 py-2 rounded-lg shadow-sm">
-                        Showing {displayProducts.length} of 1000 SKUs
+                        Total System SKUs: {ALL_PRODUCTS.length.toLocaleString('en-IN')}
                     </div>
                 </div>
 
+                {/* Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                    {/* Inject Specific Zepto Item first for demo if no search */}
                     {!search && location?.tier === 1 && (
                         <ProductCard item={ALL_PRODUCTS.find(i=>i.id===9998)} addToCart={addToCart} />
                     )}
+                    {/* Render rest */}
                     {displayProducts.filter(i=>i.id!==9998).map(item => (
                         <ProductCard key={item.id} item={item} addToCart={addToCart} />
                     ))}
                 </div>
             </main>
 
+            {/* Omni-Cart Sidebar Overlay */}
             {isCartOpen && (
                 <div className="fixed inset-0 bg-black/70 z-50 flex justify-end backdrop-blur-sm transition-opacity">
                     <div className="w-full max-w-md bg-gray-50 dark:bg-gray-900 h-full flex flex-col shadow-2xl animate-slide-in">
@@ -227,6 +267,7 @@ function App() {
                         </div>
 
                         <div className="flex-1 overflow-y-auto p-5 relative">
+                            {/* Mascot Optimizer Alert */}
                             {hasZeptoMilk && (
                                 <div className="mb-6 bg-orange-50 border-2 border-[#fc8019] rounded-2xl p-5 shadow-lg relative overflow-hidden transform transition hover:scale-[1.02]">
                                     <div className="absolute -right-4 -bottom-4 text-8xl opacity-10">☕</div>
@@ -254,8 +295,8 @@ function App() {
                                     {cart.map((item, index) => (
                                         <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex gap-4 relative group">
                                             <button onClick={() => removeFromCart(index)} className="absolute top-2 right-2 text-gray-300 hover:text-red-500 transition opacity-0 group-hover:opacity-100 font-bold">&times;</button>
-                                            <div className="w-20 h-20 bg-gray-50 dark:bg-gray-700 rounded-lg flex items-center justify-center text-4xl shrink-0 border dark:border-gray-600">
-                                                {item.image}
+                                            <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center text-4xl shrink-0 border dark:border-gray-600 overflow-hidden">
+                                                <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
                                             </div>
                                             <div className="flex-1 pr-4">
                                                 <h4 className="font-bold text-sm text-[#232f3e] dark:text-gray-100 leading-tight mb-1">{item.name}</h4>
@@ -270,6 +311,7 @@ function App() {
                                         </div>
                                     ))}
                                     
+                                    {/* Delivery Add-ons */}
                                     <div className="mt-8 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
                                         <h3 className="font-black text-sm mb-3 dark:text-white">Delivery Add-ons</h3>
                                         <label className="flex items-center gap-3 mb-3 cursor-pointer">
@@ -287,6 +329,7 @@ function App() {
                             )}
                         </div>
 
+                        {/* Bill Details */}
                         {cart.length > 0 && (
                             <div className="bg-white dark:bg-gray-800 p-6 rounded-t-3xl shadow-[0_-15px_30px_rgba(0,0,0,0.1)] border-t dark:border-gray-700 z-20">
                                 <h3 className="font-black text-sm mb-4 dark:text-gray-300 uppercase tracking-wider text-gray-500">Routing & Bill Details</h3>
@@ -323,6 +366,7 @@ function App() {
 function ProductCard({ item, addToCart }) {
     return (
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 dark:border-gray-700 flex flex-col relative group transform hover:-translate-y-1">
+            {/* Badges: Swiggy Style */}
             <div className={`absolute top-3 left-3 px-2.5 py-1 rounded-md text-[10px] font-black shadow-md z-10 ${item.type === 'qc' ? 'bg-gradient-to-r from-orange-100 to-orange-50 text-[#fc8019] border border-orange-200' : 'bg-gradient-to-r from-blue-100 to-blue-50 text-blue-700 border border-blue-200'}`}>
                 {item.type === 'qc' ? '⚡ ' : '🚚 '}{item.eta}
             </div>
@@ -330,8 +374,8 @@ function ProductCard({ item, addToCart }) {
                 {item.platform}
             </div>
 
-            <div className="h-48 bg-gray-50 dark:bg-gray-700 flex items-center justify-center text-7xl group-hover:scale-110 transition-transform duration-500 ease-out">
-                {item.image}
+            <div className="h-48 w-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
+                <img src={item.imageUrl} alt={item.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out" />
             </div>
             
             <div className="p-5 flex flex-col flex-1">
