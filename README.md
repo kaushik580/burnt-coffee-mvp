@@ -1,1 +1,1 @@
-# Burnt Coffee 1000 SKU Production Prototype\nFully updated with real imagery mapping.
+# Burnt Coffee 1000 SKU Production Prototype\nFully updated with real imagery mapping and SVG icons.
